@@ -1,29 +1,57 @@
 ```javascript
-let tweets = [];
+let startButton = document.getElementById('startButton');
+let stopButton = document.getElementById('stopButton');
+let usernameInput = document.getElementById('usernameInput');
+let tweetContainer = document.getElementById('tweetContainer');
 
-document.getElementById('startButton').addEventListener('click', startScraping);
-document.getElementById('optionsButton').addEventListener('click', () => {
-    chrome.runtime.openOptionsPage();
-});
+let tweets = [];
+let usernames = [];
+
+startButton.addEventListener('click', startScraping);
+stopButton.addEventListener('click', stopScraping);
+
+function startScraping() {
+    let username = usernameInput.value;
+    usernames.push(username);
+    chrome.runtime.sendMessage({message: 'START_SCRAPING', username: username});
+}
+
+function stopScraping() {
+    chrome.runtime.sendMessage({message: 'STOP_SCRAPING'});
+}
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-    if (request.message === 'tweetsScraped') {
-        tweets = request.tweets;
+    if (request.message === 'TWEET_DATA') {
+        tweets = request.data;
         displayTweets();
     }
 });
 
-function startScraping() {
-    chrome.runtime.sendMessage({message: 'scrapeTweets'});
-}
-
 function displayTweets() {
-    const tweetContainer = document.getElementById('tweetContainer');
     tweetContainer.innerHTML = '';
     tweets.forEach(tweet => {
-        const tweetElement = document.createElement('div');
+        let tweetElement = document.createElement('p');
         tweetElement.textContent = tweet.text;
         tweetContainer.appendChild(tweetElement);
+    });
+}
+
+function sendToAPI() {
+    let data = {
+        usernames: usernames,
+        tweets: tweets
+    };
+    fetch('https://your-api-url.com', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+    })
+    .then(response => response.json())
+    .then(data => console.log(data))
+    .catch((error) => {
+        console.error('Error:', error);
     });
 }
 ```

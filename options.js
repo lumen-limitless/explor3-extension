@@ -1,36 +1,30 @@
 ```javascript
+// Options.js
+// This file is responsible for handling the options page of the extension
+
 // Get DOM elements
-const saveButton = document.getElementById('saveButton');
+const startButton = document.getElementById('startButton');
+const stopButton = document.getElementById('stopButton');
+const usernameInput = document.getElementById('usernameInput');
 
-// Function to save options
-function saveOptions() {
-    const apiUrl = document.getElementById('apiUrl').value;
+// Event listeners for start and stop buttons
+startButton.addEventListener('click', startScraping);
+stopButton.addEventListener('click', stopScraping);
 
-    // Save options to chrome storage
-    chrome.storage.sync.set({
-        apiUrl: apiUrl
-    }, function() {
-        // Update status to let user know options were saved.
-        const status = document.getElementById('status');
-        status.textContent = 'Options saved.';
-        setTimeout(function() {
-            status.textContent = '';
-        }, 750);
-    });
+// Function to start scraping
+function startScraping() {
+    let username = usernameInput.value;
+    if (username) {
+        // Send message to background.js to start scraping
+        chrome.runtime.sendMessage({type: 'START_SCRAPING', username: username});
+    } else {
+        alert('Please enter a Twitter username.');
+    }
 }
 
-// Restores select box and checkbox state using the preferences
-// stored in chrome.storage.
-function restoreOptions() {
-    // Use default value apiUrl = 'http://localhost:3000/api'
-    chrome.storage.sync.get({
-        apiUrl: 'http://localhost:3000/api'
-    }, function(items) {
-        document.getElementById('apiUrl').value = items.apiUrl;
-    });
+// Function to stop scraping
+function stopScraping() {
+    // Send message to background.js to stop scraping
+    chrome.runtime.sendMessage({type: 'STOP_SCRAPING'});
 }
-
-// Event listeners
-document.addEventListener('DOMContentLoaded', restoreOptions);
-saveButton.addEventListener('click', saveOptions);
 ```

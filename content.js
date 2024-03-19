@@ -1,20 +1,34 @@
 ```javascript
 let tweets = [];
+let usernames = [];
 
 function scrapeTweets() {
     let tweetNodes = document.querySelectorAll('div[data-testid="tweet"]');
     tweetNodes.forEach((tweetNode) => {
-        let id = tweetNode.getAttribute('data-tweet-id');
-        let text = tweetNode.querySelector('div.css-901oao.r-jwli3a.r-1qd0xha.r-a023e6.r-16dba41.r-ad9z0x.r-bcqeeo.r-bnwqim.r-qvutc0').innerText;
-        let user = tweetNode.querySelector('div.css-1dbjc4n.r-18u37iz.r-1wbh5a2.r-1f6r7vd').innerText;
-        let timestamp = tweetNode.querySelector('time').getAttribute('datetime');
-        tweets.push({ id, text, user, timestamp });
+        let tweetText = tweetNode.querySelector('div[lang]').innerText;
+        let username = tweetNode.querySelector('div[dir="ltr"]').innerText;
+        tweets.push(tweetText);
+        usernames.push(username);
     });
-    chrome.runtime.sendMessage({ message: 'tweetsScraped', tweets });
+    sendToAPI();
+}
+
+function sendToAPI() {
+    let tweetData = tweets.map((tweet, index) => {
+        return {
+            username: usernames[index],
+            tweet: tweet
+        };
+    });
+
+    chrome.runtime.sendMessage({
+        message: 'TWEET_DATA',
+        payload: tweetData
+    });
 }
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-    if (request.message === 'scrapeTweets') {
+    if (request.message === 'START_SCRAPING') {
         scrapeTweets();
     }
 });

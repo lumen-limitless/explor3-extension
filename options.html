@@ -3,15 +3,17 @@
 <html>
 <head>
     <title>Options</title>
-    <link rel="stylesheet" type="text/css" href="options.css">
+    <link rel="stylesheet" type="text/css" href="css/options.css">
 </head>
 <body>
-    <h1>Options</h1>
+    <h1>Twitter Scraper Options</h1>
     <form id="optionsForm">
-        <label for="apiUrl">API URL:</label><br>
-        <input type="text" id="apiUrl" name="apiUrl"><br>
-        <button id="saveButton">Save</button>
+        <label for="usernameInput">Twitter Username:</label><br>
+        <input type="text" id="usernameInput" name="usernameInput"><br>
+        <button id="startButton" type="button">Start Scraping</button>
+        <button id="stopButton" type="button">Stop Scraping</button>
     </form>
+    <div id="tweetContainer"></div>
     <script src="options.js"></script>
 </body>
 </html>
