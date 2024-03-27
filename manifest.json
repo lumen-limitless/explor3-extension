@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "Twitter Scraper",
+  "name": "Twitter Feed Scraper",
   "version": "1.0",
-  "permissions": ["storage", "activeTab", "scripting"],
+  "permissions": ["storage", "activeTab", "https://twitter.com/*"],
   "action": {
     "default_popup": "popup.html",
     "default_icon": {

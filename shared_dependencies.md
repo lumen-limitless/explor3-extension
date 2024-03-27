@@ -1,27 +1,17 @@
 Shared Dependencies:
 
-1. **Exported Variables**: 
-    - `tweets`: Array to store scraped tweets.
-    - `usernames`: Array to store Twitter usernames.
+1. **manifest.json**: This file will contain the metadata for the extension, including the names of the other files (background.js, content.js, popup.html, popup.js, options.html, options.js) and permissions required (like "storage", "activeTab", "https://twitter.com/*").
 
-2. **Data Schemas**: 
-    - `tweetSchema`: Defines the structure of a tweet object.
-    - `userSchema`: Defines the structure of a user object.
+2. **background.js**: This file will contain the main logic of the extension. It will share function names like `fetchTweets()`, `sendToAPI()`, and message names like "scrapeTweets", "sendData".
 
-3. **ID Names of DOM Elements**: 
-    - `startButton`: Button to start scraping.
-    - `stopButton`: Button to stop scraping.
-    - `usernameInput`: Input field for Twitter username.
-    - `tweetContainer`: Container to display scraped tweets.
+3. **content.js**: This file will be injected into the Twitter page. It will share function names like `scrapeTweets()`, and DOM element IDs from Twitter's website.
 
-4. **Message Names**: 
-    - `START_SCRAPING`: Message to start scraping process.
-    - `STOP_SCRAPING`: Message to stop scraping process.
-    - `TWEET_DATA`: Message containing scraped tweet data.
+4. **popup.html/popup.js/css/popup.css**: These files will create the popup UI of the extension. They will share DOM element IDs like "startButton", "statusText", and function names like `startScraping()`, `updateStatus()`.
 
-5. **Function Names**: 
-    - `startScraping`: Function to start scraping process.
-    - `stopScraping`: Function to stop scraping process.
-    - `scrapeTweets`: Function to scrape tweets.
-    - `displayTweets`: Function to display scraped tweets on the extension's popup.
-    - `sendToAPI`: Function to send scraped data to an API.
+5. **options.html/options.js/css/options.css**: These files will create the options page of the extension. They will share DOM element IDs like "apiUrlInput", "saveButton", and function names like `saveOptions()`, `loadOptions()`.
+
+6. **Chrome Storage API**: This will be used in background.js, popup.js, and options.js to store and retrieve the API URL and other settings. The shared keys will be like "apiUrl", "scrapingStatus".
+
+7. **Exported Variables**: Variables like `apiUrl`, `scrapingStatus` will be shared across background.js, popup.js, and options.js.
+
+8. **Data Schemas**: The format of the scraped tweet data and the settings data will be shared across background.js, content.js, popup.js, and options.js. For example, a tweet might be represented as `{username: string, content: string, timestamp: string}`.

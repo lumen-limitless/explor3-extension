@@ -1,30 +1,30 @@
 ```javascript
-// Options.js
-// This file is responsible for handling the options page of the extension
-
-// Get DOM elements
-const startButton = document.getElementById('startButton');
-const stopButton = document.getElementById('stopButton');
-const usernameInput = document.getElementById('usernameInput');
-
-// Event listeners for start and stop buttons
-startButton.addEventListener('click', startScraping);
-stopButton.addEventListener('click', stopScraping);
-
-// Function to start scraping
-function startScraping() {
-    let username = usernameInput.value;
-    if (username) {
-        // Send message to background.js to start scraping
-        chrome.runtime.sendMessage({type: 'START_SCRAPING', username: username});
-    } else {
-        alert('Please enter a Twitter username.');
-    }
+// Save options to chrome.storage
+function saveOptions() {
+  var apiUrl = document.getElementById('apiUrlInput').value;
+  chrome.storage.sync.set({
+    apiUrl: apiUrl
+  }, function() {
+    // Update status to let user know options were saved.
+    var status = document.getElementById('status');
+    status.textContent = 'Options saved.';
+    setTimeout(function() {
+      status.textContent = '';
+    }, 750);
+  });
 }
 
-// Function to stop scraping
-function stopScraping() {
-    // Send message to background.js to stop scraping
-    chrome.runtime.sendMessage({type: 'STOP_SCRAPING'});
+// Restores select box and checkbox state using the preferences
+// stored in chrome.storage.
+function loadOptions() {
+  chrome.storage.sync.get({
+    apiUrl: 'https://your-api-url.com'
+  }, function(items) {
+    document.getElementById('apiUrlInput').value = items.apiUrl;
+  });
 }
+
+// Listeners
+document.getElementById('saveButton').addEventListener('click', saveOptions);
+document.addEventListener('DOMContentLoaded', loadOptions);
 ```

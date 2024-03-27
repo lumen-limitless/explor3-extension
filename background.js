@@ -1,51 +1,51 @@
 ```javascript
-let tweets = [];
-let usernames = [];
+let apiUrl = '';
+let scrapingStatus = false;
 
-chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-    if (request.message === 'START_SCRAPING') {
-        startScraping(request.username);
-    } else if (request.message === 'STOP_SCRAPING') {
-        stopScraping();
-    }
+chrome.runtime.onInstalled.addListener(() => {
+  chrome.storage.sync.set({ apiUrl: '', scrapingStatus: false });
 });
 
-function startScraping(username) {
-    usernames.push(username);
-    scrapeTweets(username);
-}
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+  if (request.message === 'scrapeTweets') {
+    scrapingStatus = true;
+    fetchTweets();
+  } else if (request.message === 'sendData') {
+    sendToAPI(request.data);
+  }
+});
 
-function stopScraping() {
-    usernames = [];
-    tweets = [];
-}
-
-function scrapeTweets(username) {
-    fetch(`https://twitter.com/${username}`)
-        .then(response => response.text())
-        .then(data => {
-            let parser = new DOMParser();
-            let htmlDocument = parser.parseFromString(data, 'text/html');
-            let tweetElements = htmlDocument.querySelectorAll('.tweet');
-            tweetElements.forEach(tweetElement => {
-                let tweet = {
-                    username: username,
-                    content: tweetElement.querySelector('.tweet-text').innerText,
-                    timestamp: tweetElement.querySelector('.tweet-timestamp').innerText
-                };
-                tweets.push(tweet);
-            });
-            sendToAPI(tweets);
-        });
-}
-
-function sendToAPI(tweets) {
-    fetch('https://your-api-url.com', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(tweets)
+function fetchTweets() {
+  chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+    chrome.scripting.executeScript({
+      target: { tabId: tabs[0].id },
+      files: ['content.js']
     });
+  });
 }
+
+function sendToAPI(data) {
+  fetch(apiUrl, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(data)
+  })
+  .then(response => response.json())
+  .then(data => {
+    scrapingStatus = false;
+    chrome.runtime.sendMessage({ message: 'updateStatus', status: 'Data sent successfully' });
+  })
+  .catch((error) => {
+    scrapingStatus = false;
+    chrome.runtime.sendMessage({ message: 'updateStatus', status: 'Error sending data' });
+  });
+}
+
+chrome.storage.onChanged.addListener((changes, areaName) => {
+  if (areaName === 'sync' && changes.apiUrl) {
+    apiUrl = changes.apiUrl.newValue;
+  }
+});
 ```
